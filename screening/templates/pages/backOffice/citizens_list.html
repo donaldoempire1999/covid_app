@@ -1,0 +1,323 @@
+{% extends './base.html' %}
+{% load static %}
+{% load crispy_forms_filters %}
+{% load crispy_forms_tags %}
+
+
+
+{% block pageContentRow %}
+
+
+      <!-- Pills navs -->
+<ul class="nav nav-pills mb-3" id="ex1" role="tablist">
+  <li class="nav-item" role="presentation">
+    <a
+      class="nav-link active"
+      id="ex1-tab-1"
+      data-mdb-toggle="pill"
+      href="#ex1-pills-1"
+      role="tab"
+      aria-controls="ex1-pills-1"
+      aria-selected="true"
+      >check</a
+    >
+  </li>
+  <li class="nav-item" role="presentation">
+    <a
+      class="nav-link"
+      id="ex1-tab-2"
+      data-mdb-toggle="pill"
+      href="#ex1-pills-2"
+      role="tab"
+      aria-controls="ex1-pills-2"
+      aria-selected="false"
+      >create ci</a
+    >
+  </li>
+  <li class="nav-item" role="presentation">
+    <a
+      class="nav-link"
+      id="ex1-tab-3"
+      data-mdb-toggle="pill"
+      href="#ex1-pills-3"
+      role="tab"
+      aria-controls="ex1-pills-3"
+      aria-selected="false"
+      >scr</a
+    >
+  </li>
+
+    <!--
+<li>
+
+    <button id="make-screening"  class="btn btn-secondary col-sm-2"  data-dismiss="modal" data-backdrop="false">mk scr</button>
+
+</li> -->
+
+</ul>
+<!-- Pills navs -->
+
+
+
+
+
+
+
+<!-- Pills content -->
+<div class="tab-content" id="ex1-content">
+
+    <div
+            class="tab-pane fade active show"
+
+            id="ex1-pills-1"  role="tabpanel"  aria-labelledby="ex1-tab-1">
+
+        <table class="table  table-responsive">
+            <thead class="thead-default">
+            <tr>
+                <th> No_s</th>
+                <th> No_citizen </th>
+                <th> first_name</th>
+                <th> second_name</th>
+                <th> gender</th>
+                <th>years</th>
+                <th> Nationality</th>
+                <th> Card_id</th>
+                <th>Mobile Phone</th>
+                <th> Status</th>
+                <th>Screening Date</th>
+                <th>Picture</th>
+                <th>Delete</th>
+                <th>Update</th>
+            </tr>
+            </thead>
+            <tbody>
+
+                  {% for hasscreened in hl %}
+
+                      <tr>
+                          <td scope="row">
+                              <button type="button" data-form-url="{% url 'screening:has_screened-detail' hasscreened.id %}" id="read-has_screened" class="btn btn-light bs-modal"> {{ hasscreened.id  }} </button>
+                          </td>
+
+                          <td> {{ hasscreened.citizen_who_has_been_screened_id }}</td>
+
+                          <td> {{ hasscreened.citizen_who_has_been_screened.first_name }}</td>
+
+                          <td> {{ hasscreened.citizen_who_has_been_screened.second_name }}</td>
+
+                          <td>  {{ hasscreened.citizen_who_has_been_screened.gender }}</td>
+
+                          <td>{{ hasscreened.citizen_who_has_been_screened.get_age }}</td>
+
+                          <td> {{ hasscreened.citizen_who_has_been_screened.nationality }}</td>
+
+                         <td>{{ hasscreened.citizen_who_has_been_screened.identity_card_id }}</td>
+
+                          <td>{{ hasscreened.citizen_who_has_been_screened.mobile_phone }}</td>
+                          <td>  {% if hasscreened.status == "+" %}
+                                  <span><button type="button" class="btn btn-danger btn-rounded btn-sm my-0">  </button></span></i></span>
+                                {% elif hasscreened.status == "-" %}
+                                  <span><button type="button" class="btn btn-success btn-rounded btn-sm my-0">  </button></span></i></span>
+                                {% else %}
+                                  <span><button type="button" class="btn btn-facebook btn-rounded btn-sm my-0">  </button></span></i></span>
+                               {% endif %}
+                          </td>
+
+                          <td>{{ hasscreened.screening_date }}</td>
+
+                          <td>
+                               {% if hasscreened.citizen_who_has_been_screened.picture != none%}
+                                    <a href="/{{ hasscreened.citizen_who_has_been_screened.picture }}">see it</a>
+                               {% else %}
+                                    <a href="#">see it</a>
+                               {% endif %}
+                          </td>
+
+                          <td> <button class="btn btn-danger bs-modal" data-form-url="{% url 'screening:has_screened-delete' hasscreened.id %}">delete</button></td>
+
+                          <td><button class="btn btn-facebook bs-modal" data-form-url="{% url 'screening:has_screened-update' hasscreened.id %}">update</button></td>
+
+                      </tr>
+
+                  {% endfor %}
+
+            </tbody>
+        </table>
+  </div>
+
+    <div class="tab-pane fade row" id="ex1-pills-2" role="tabpanel" aria-labelledby="ex1-tab-2">
+
+                    <div class="card col-sm-4" style="margin-top: 20px">
+
+              <div style='display:inline-block; background-color: #c8cbcf' >
+                 <video id="sourcevid" width='100%' autoplay="true"></video>
+              </div>
+
+              <canvas id="cvs" style='display:inline-block'></canvas>
+
+
+              <div class="card-body">
+                 <div class="card-text">
+                     {{ form.non_field_errors }}
+                    <form  enctype="multipart/form-data" method="post" action="{% url 'screening:has_screened-list' %}"  id="save_citizens_forms">
+                    {% csrf_token %}
+                        {{ form|crispy}}
+
+                        <div class="container" style="margin-top: 15px; padding-right: 10px;, padding-left: 10px;">
+                            <input type="submit" value="Save Citizen" class="submit btn btn-success  col-md-2" name="submit" id="submit" /><br><br>
+                              <button type="button" class="btn btn-danger  col-md-2" onclick='ouvrir_camera()' >Open cam</button> <br>
+                              <button type="button" class="btn btn-info  col-md-4" onclick='fermer()' >Close cam</button> <br> <br>
+                              <button type="button" class="btn btn-primary col-md-2" onclick='photo()' >Snap</button>
+                              <button type="button" class="btn btn-light col-md-2" onclick='sauver()' >Save Pict</button>
+                        </div>
+                    </form>
+                 </div>
+                 </div>
+              </div>
+
+    </div>
+
+    <div class="tab-pane fade" id="ex1-pills-3" role="tabpanel" aria-labelledby="ex1-tab-3">
+
+        <div class="card col-sm-4">
+
+              <div class="card-body">
+                 <div class="card-text">
+                     {{ form.non_field_errors }}
+                    <form  enctype="multipart/form-data" method="post" action="{% url 'screening:has_screened-list' %}">
+                    {% csrf_token %}
+                        {{ form2|crispy}}
+
+                        <div class="form-submit" style="margin-top: 15px">
+                            <input type="submit" value="Save Citizen" class="submit btn btn-success" name="submit" id="submit" />
+                        </div>
+                    </form>
+                 </div>
+                 </div>
+              </div>
+    </div>
+
+</div>
+    <!-- Pills content -->
+
+{% endblock %}
+
+
+{% block ScriptBottom  %}
+    {{ block.super }}
+
+    <script type="text/javascript">
+
+        $(document).ready(function (){
+
+             $(".bs-modal").each(function () {
+                  $(this).modalForm({
+                      formURL: $(this).data('form-url')
+                  });
+            });
+
+            $('#create-citizen').modalForm({
+
+                        formURL: "{% url 'screening:citizens-create' %}",
+                        modalID: "#create-modal"
+                    })
+
+            $('#make-screening').modalForm({
+                        formURL: "{% url 'screening:has_screened-create' %}",
+                        modalID: "#create-modal"
+                    })
+            })
+      </script>
+
+
+
+      <script>
+
+    function ouvrir_camera() {
+
+     navigator.mediaDevices.getUserMedia({ audio: false, video: { width: 400 } }).then(function(mediaStream) {
+
+      var video = document.getElementById('sourcevid');
+      video.srcObject = mediaStream;
+
+      var tracks = mediaStream.getTracks();
+
+      document.getElementById("message").innerHTML="message: "+tracks[0].label+" connecté"
+
+      console.log(tracks[0].label)
+      console.log(mediaStream)
+
+      video.onloadedmetadata = function(e) {
+       video.play();
+      };
+
+     }).catch(function(err) { console.log(err.name + ": " + err.message);
+
+     document.getElementById("message").innerHTML="message: connection refusé"});
+    }
+
+    function photo(){
+
+     var vivi = document.getElementById('sourcevid');
+     //var canvas1 = document.createElement('canvas');
+     var canvas1 = document.getElementById('cvs')
+     var ctx =canvas1.getContext('2d');
+     canvas1.height=vivi.videoHeight
+     canvas1.width=vivi.videoWidth
+     console.log(vivi.videoWidth)
+     ctx.drawImage(vivi, 0,0, vivi.videoWidth, vivi.videoHeight);
+
+     //var base64=canvas1.toDataURL("image/png"); //l'image au format base 64
+     //document.getElementById('tar').value='';
+     //document.getElementById('tar').value=base64;
+    }
+
+    function sauver(){
+
+     if(navigator.msSaveOrOpenBlob){
+
+      var blobObject=document.getElementById("cvs").msToBlob()
+
+      window.navigator.msSaveOrOpenBlob(blobObject, "image.png");
+     }
+
+     else{
+
+      var canvas = document.getElementById("cvs");
+      var elem = document.createElement('a');
+      elem.href = canvas.toDataURL("img");
+      elem.download = "photo.png";
+      var evt = new MouseEvent("click", { bubbles: true,cancelable: true,view: window,});
+      elem.dispatchEvent(evt);
+     }
+    }
+
+    function prepare_envoi(){
+
+     var canvas = document.getElementById('cvs');
+     canvas.toBlob(function(blob){envoi(blob)}, 'image/jpeg');
+    }
+
+
+
+    function fermer(){
+
+     var video = document.getElementById('sourcevid');
+     var mediaStream=video.srcObject;
+     console.log(mediaStream)
+     var tracks = mediaStream.getTracks();
+     console.log(tracks[0])
+     tracks.forEach(function(track) {
+      track.stop();
+      document.getElementById("message").innerHTML="message: "+tracks[0].label+" déconnecté"
+     });
+
+     video.srcObject = null;
+    }
+
+
+   </script>
+
+
+{% endblock %}
+

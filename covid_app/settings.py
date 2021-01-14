@@ -24,7 +24,7 @@ SECRET_KEY = 'r1b6gjf8vd@gymsf#c^e5g3us&cc!50+%j*rj&k6b6s0q2xf@3'
 # SECURITY WARNING: don't run with debug turned on in production!
 DEBUG = True
 
-ALLOWED_HOSTS = []
+ALLOWED_HOSTS = ['http://donaldoempire1999.pythonanywhere.com/']
 
 # Application definition
 

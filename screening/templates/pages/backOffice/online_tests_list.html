@@ -28,7 +28,15 @@
                 <td> {{ object.comments }}</td>
                 <td> {{  object.result }}</td>
                 <td> {{ object.state }}</td>
-                <td> <audio controls><source src="/media/{{ object.voice }}"></audio></td>
+
+                <td>
+                   {% if object.voice %}
+                     <audio controls><source src="{{ object.voice.url }}"></audio>
+                   {% else %}
+                       <audio controls><source src="#"></audio>
+                   {% endif %}
+
+                </td>
                 <td>{{ object.symptoms_detected.get }}</td>
 
             {% endfor %}

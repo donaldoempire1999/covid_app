@@ -5,6 +5,7 @@ from django.views import View, generic
 from django.contrib.auth.decorators import login_required
 from django.contrib.auth import authenticate, login
 from django.db import IntegrityError
+from django_ajax.decorators import ajax
 
 from . import forms
 from bootstrap_modal_forms.generic import BSModalCreateView, BSModalReadView, BSModalUpdateView, BSModalDeleteView
@@ -53,6 +54,28 @@ class PersonalMessageView(View):
         return render(request, template_name="message_box/index.html", context={
             'errors': errors, 'success': success, 'message': message
         })
+
+
+@ajax
+def save_citizen(request):
+    form = forms.CitizenModelForm2(request.POST, request.FILES)
+    was_save = False
+    if form.is_valid():
+        form.save(commit=True)
+        was_save = True
+    return {"errors": form.errors, "was_save": was_save}
+
+
+@ajax
+def save_screening(request):
+    form = forms.HasScreenedModelForm2(request.POST, request.FILES)
+    was_save = False
+    if form.is_valid():
+       hasscreened = form.save(commit=False)
+       hasscreened.scout_who_screened = request.user
+       hasscreened.save()
+       was_save = True
+    return {"errors": form.errors, "was_save": was_save}
 
 
 class CitizenCreateModalView(BSModalCreateView):
@@ -122,34 +145,14 @@ class HasScreenedListView(generic.View):
     def get(self, request):
         hasscreened_list = HasScreened.objects.filter(scout_who_screened=request.user)
         form = forms.CitizenModelForm2()
-        form.to_form_small()
 
         form2 = forms.HasScreenedModelForm2()
-        form2.to_form_small()
 
         return render(request, template_name=self.template_name, context={
             'form': form,
             'form2': form2,
             'hl': hasscreened_list,
         })
-
-    def post(self, request):
-
-        hasscreened_list = HasScreened.objects.filter(scout_who_screened=request.user)
-        form = forms.CitizenModelForm2(request.POST, request.FILES)
-        form.to_form_small()
-        if form.is_valid():
-            form.save(commit=True)
-        else:
-            return render(request, template_name=self.template_name, context={
-                    'form': form,
-                    ' hasscreened_list': hasscreened_list})
-
-        return render(request, template_name=self.template_name, context={
-                'form': forms.CitizenModelForm2(),
-                ' hasscreened_list': hasscreened_list,
-
-            })
 
 
 # home_office

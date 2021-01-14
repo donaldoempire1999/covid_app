@@ -24,7 +24,7 @@ SECRET_KEY = 'r1b6gjf8vd@gymsf#c^e5g3us&cc!50+%j*rj&k6b6s0q2xf@3'
 # SECURITY WARNING: don't run with debug turned on in production!
 DEBUG = True
 
-ALLOWED_HOSTS = ['donaldoempire1999.pythonanywhere.com']
+ALLOWED_HOSTS = ['donaldoempire1999.pythonanywhere.com', '127.0.0.1']
 
 # Application definition
 
@@ -38,6 +38,8 @@ INSTALLED_APPS = [
     'screening.apps.ScreeningConfig',
     'bootstrap_modal_forms',
     'crispy_forms',
+    'widget_tweaks',
+    'django_ajax'
 ]
 
 CRISPY_TEMPLATE_PACK = 'bootstrap4'

@@ -85,7 +85,7 @@ class Citizen(models.Model):
         super(Citizen, self).save(*args, **kwargs)
 
     def __str__(self):
-        return "  firstName:{} , secondName: {} ,  id_card: {}, phone: {}  ".format(self.id, self.first_name,
+        return "name:{} {} , id_card: {}, phone: {}  ".format(self.first_name, self.second_name,
                                                                                      self.identity_card_id,
                                                                                      self.mobile_phone)
 

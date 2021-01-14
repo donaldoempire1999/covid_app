@@ -26,10 +26,6 @@ class HasScreenedModelForm2(forms.ModelForm):
         model = models.HasScreened
         exclude = ["scout_who_screened"]
 
-    def to_form_small(self):
-        for key in self.fields:
-            self.fields[key].widget.attrs.update({'class': 'form-control-sm', 'style': '{margin-bottom: 18px;}'})
-
 
 class HasScreenedModelForm(BSModalModelForm):
     class Meta:

@@ -28,7 +28,9 @@ urlpatterns = [
     path('map', views.map_index, name="map"),
     path('online_test/', views.OnlineTestListView.as_view(), name="online_test-list"),
 
-    path('messages', views.PersonalMessageView.as_view(), name="message-personal")
+    path('messages', views.PersonalMessageView.as_view(), name="message-personal"),
 
+    path('citizen_ajax_save', views.save_citizen, name="citizen-save-ajax"),
+    path('screening_ajax_save', views.save_screening, name="screening-save-ajax")
 
 ]

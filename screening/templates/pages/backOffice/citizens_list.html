@@ -1,4 +1,5 @@
 {% extends './base.html' %}
+{% load widget_tweaks %}
 {% load static %}
 {% load crispy_forms_filters %}
 {% load crispy_forms_tags %}
@@ -56,11 +57,6 @@
 
 </ul>
 <!-- Pills navs -->
-
-
-
-
-
 
 
 <!-- Pills content -->
@@ -126,8 +122,8 @@
                           <td>{{ hasscreened.screening_date }}</td>
 
                           <td>
-                               {% if hasscreened.citizen_who_has_been_screened.picture != none%}
-                                    <a href="/{{ hasscreened.citizen_who_has_been_screened.picture }}">see it</a>
+                               {% if hasscreened.citizen_who_has_been_screened.picture%}
+                                    <a href="{{ hasscreened.citizen_who_has_been_screened.picture.url}}">see it</a>
                                {% else %}
                                     <a href="#">see it</a>
                                {% endif %}
@@ -147,50 +143,45 @@
 
     <div class="tab-pane fade row" id="ex1-pills-2" role="tabpanel" aria-labelledby="ex1-tab-2">
 
-                    <div class="card col-sm-4" style="margin-top: 20px">
-
-              <div style='display:inline-block; background-color: #c8cbcf' >
-                 <video id="sourcevid" width='100%' autoplay="true"></video>
-              </div>
-
-              <canvas id="cvs" style='display:inline-block'></canvas>
-
+        <div class="card col-sm-auto" style="margin-top: 20px">
 
               <div class="card-body">
                  <div class="card-text">
-                     {{ form.non_field_errors }}
-                    <form  enctype="multipart/form-data" method="post" action="{% url 'screening:has_screened-list' %}"  id="save_citizens_forms">
+                    <form  enctype="multipart/form-data" method="post"  id="save_citizens_forms" data-token = "{{ csrf_token }}">
                     {% csrf_token %}
-                        {{ form|crispy}}
-
-                        <div class="container" style="margin-top: 15px; padding-right: 10px;, padding-left: 10px;">
-                            <input type="submit" value="Save Citizen" class="submit btn btn-success  col-md-2" name="submit" id="submit" /><br><br>
-                              <button type="button" class="btn btn-danger  col-md-2" onclick='ouvrir_camera()' >Open cam</button> <br>
-                              <button type="button" class="btn btn-info  col-md-4" onclick='fermer()' >Close cam</button> <br> <br>
-                              <button type="button" class="btn btn-primary col-md-2" onclick='photo()' >Snap</button>
-                              <button type="button" class="btn btn-light col-md-2" onclick='sauver()' >Save Pict</button>
-                        </div>
+                        {% for field in form %}
+                              <div class="form-group">
+                                <label for="{{ field.id_for_label }}">{{ field.label }}</label>
+                                {% render_field field class="form-control form-control-sm input_save_client" placeholder=field.label %}
+                                    <p class="error_{{forloop.counter}} error_p"></p>
+                                </div>
+                         {% endfor %}
+                         <input type="submit" value="Save Citizen" class="submit btn btn-success btn-small" name="submit" id="submit" /><br><br>
                     </form>
                  </div>
                  </div>
-              </div>
+
+
+        </div>
 
     </div>
 
     <div class="tab-pane fade" id="ex1-pills-3" role="tabpanel" aria-labelledby="ex1-tab-3">
 
-        <div class="card col-sm-4">
+        <div class="card">
 
               <div class="card-body">
                  <div class="card-text">
-                     {{ form.non_field_errors }}
-                    <form  enctype="multipart/form-data" method="post" action="{% url 'screening:has_screened-list' %}">
+                     <form  enctype="multipart/form-data" method="post"  id="save_screening_forms">
                     {% csrf_token %}
-                        {{ form2|crispy}}
-
-                        <div class="form-submit" style="margin-top: 15px">
-                            <input type="submit" value="Save Citizen" class="submit btn btn-success" name="submit" id="submit" />
-                        </div>
+                        {% for field in form2 %}
+                              <div class="form-group">
+                                <label for="{{ field.id_for_label }}">{{ field.label }}</label>
+                                {% render_field field class="form-control form-control-sm input_save_screening" placeholder=field.label %}
+                                    <p class="error_s_{{forloop.counter}} error_s_p"></p>
+                                </div>
+                         {% endfor %}
+                         <button type="submit" class="submit btn btn-success" name="submit" id="submit" >save screening</button>
                     </form>
                  </div>
                  </div>
@@ -229,95 +220,176 @@
             })
       </script>
 
+    <script>
 
+       $(function (){
 
-      <script>
+         $('#save_citizens_forms').submit(function(event){
 
-    function ouvrir_camera() {
-
-     navigator.mediaDevices.getUserMedia({ audio: false, video: { width: 400 } }).then(function(mediaStream) {
-
-      var video = document.getElementById('sourcevid');
-      video.srcObject = mediaStream;
-
-      var tracks = mediaStream.getTracks();
-
-      document.getElementById("message").innerHTML="message: "+tracks[0].label+" connecté"
-
-      console.log(tracks[0].label)
-      console.log(mediaStream)
-
-      video.onloadedmetadata = function(e) {
-       video.play();
-      };
-
-     }).catch(function(err) { console.log(err.name + ": " + err.message);
-
-     document.getElementById("message").innerHTML="message: connection refusé"});
-    }
-
-    function photo(){
-
-     var vivi = document.getElementById('sourcevid');
-     //var canvas1 = document.createElement('canvas');
-     var canvas1 = document.getElementById('cvs')
-     var ctx =canvas1.getContext('2d');
-     canvas1.height=vivi.videoHeight
-     canvas1.width=vivi.videoWidth
-     console.log(vivi.videoWidth)
-     ctx.drawImage(vivi, 0,0, vivi.videoWidth, vivi.videoHeight);
-
-     //var base64=canvas1.toDataURL("image/png"); //l'image au format base 64
-     //document.getElementById('tar').value='';
-     //document.getElementById('tar').value=base64;
-    }
-
-    function sauver(){
-
-     if(navigator.msSaveOrOpenBlob){
-
-      var blobObject=document.getElementById("cvs").msToBlob()
-
-      window.navigator.msSaveOrOpenBlob(blobObject, "image.png");
-     }
-
-     else{
-
-      var canvas = document.getElementById("cvs");
-      var elem = document.createElement('a');
-      elem.href = canvas.toDataURL("img");
-      elem.download = "photo.png";
-      var evt = new MouseEvent("click", { bubbles: true,cancelable: true,view: window,});
-      elem.dispatchEvent(evt);
-     }
-    }
-
-    function prepare_envoi(){
-
-     var canvas = document.getElementById('cvs');
-     canvas.toBlob(function(blob){envoi(blob)}, 'image/jpeg');
-    }
+            event.preventDefault()
+            $(".error_p ").each(function(el){
+                $(this).text(" ")
+            })
 
 
 
-    function fermer(){
+            $.ajax({
+                data: $(this).serialize(),
+                type: "post",
+                url: "{% url 'screening:citizen-save-ajax' %}",
+                success: function(response){
+                    console.log(response.content)
+                    let was_save = response.content["was_save"]
+                    if (was_save === false){
 
-     var video = document.getElementById('sourcevid');
-     var mediaStream=video.srcObject;
-     console.log(mediaStream)
-     var tracks = mediaStream.getTracks();
-     console.log(tracks[0])
-     tracks.forEach(function(track) {
-      track.stop();
-      document.getElementById("message").innerHTML="message: "+tracks[0].label+" déconnecté"
-     });
+                                let errors = response.content["errors"]
 
-     video.srcObject = null;
-    }
+                                let  first_name = errors.first_name
+                                let birth_day = errors.birth_day
+                                let gender = errors.gender
+                                let identity_card = errors.identity_card_id
+                                let nationality = errors.nationality
+                                let mobile_phone = errors.mobile_phone
 
 
-   </script>
+                                if (first_name != null){
+                                    $('.error_1').text(errors.first_name[0]).attr('style', 'color: red; font-size:12px')
+                                }
+                                if (birth_day != null){
+                                    $('.error_3').text(errors.birth_day[0]).attr('style', 'color: red; font-size:12px')
+                                }
+
+                                if (gender != null){
+                                    $('.error_4').text(errors.gender[0]).attr('style', 'color: red; font-size:12px')
+                                }
+
+                                if (identity_card != null){
+                                    $('.error_5').text(errors.identity_card_id[0]).attr('style', 'color: red; font-size:12px')
+
+                                }
 
 
+                                if (nationality != null){
+                                    $('.error_6').text(errors.nationality[0]).attr('style', 'color: red; font-size:12px')
+                                }
+
+                                if (mobile_phone != null){
+                                    $('.error_7').text(errors.mobile_phone[0]).attr('style', 'color: red; font-size:12px')
+
+                                }
+
+                            }else {
+
+
+                            alert("Citoyen Bien enregistré!!")
+
+                            $(".input_save_client").each(function(el){
+                                $(this).val(" ")
+                            })
+
+                           $(".error_p ").each(function(el){
+                                $(this).text(" ")
+                            })
+
+                    }
+
+                }
+            })
+
+
+    })
+
+         $('#save_screening_forms').submit(function(event){
+
+            event.preventDefault()
+            $(".error_s_p").each(function(el){
+                $(this).text(" ")
+            })
+
+            $.ajax({
+                data: $(this).serialize(),
+                type: "post",
+                url: "{% url 'screening:screening-save-ajax' %}",
+                success: function(response){
+                    console.log(response.content)
+                    let was_save = response.content["was_save"]
+                    if (was_save === false){
+
+                                let errors = response.content["errors"]
+
+                                let citizen_who_has_been_screened = errors. citizen_who_has_been_screened
+                                let status = errors.status
+                                let type_screening = errors.type_screening
+                                let region = errors.region
+                                let department = errors.department
+                                let quarter = errors.quarter
+                                let city = errors.city
+                                let site_following_him = errors.site_following_him
+
+
+                                if (citizen_who_has_been_screened != null){
+                                    $('.error_1').text(errors.citizen_who_has_been_screened[0]).attr('style', 'color: red; font-size:12px')
+                                }
+                                if (status != null){
+                                    $('.error_2').text(errors.status[0]).attr('style', 'color: red; font-size:12px')
+                                }
+
+                                if (type_screening != null){
+                                    $('.error_3').text(errors.type_screening[0]).attr('style', 'color: red; font-size:12px')
+                                }
+
+                                if (region != null){
+                                    $('.error_4').text(errors.region[0]).attr('style', 'color: red; font-size:12px')
+
+                                }
+
+                                if (department != null){
+                                    $('.error_5').text(errors.department[0]).attr('style', 'color: red; font-size:12px')
+                                }
+
+                                if (mobile_phone != null){
+                                    $('.error_6').text(errors.mobile_phone[0]).attr('style', 'color: red; font-size:12px')
+
+                                }
+
+
+                                if (quarter != null){
+                                    $('.error_7').text(errors.city[0]).attr('style', 'color: red; font-size:12px')
+
+                                }
+
+                                if (city != null){
+                                    $('.error_8').text(errors.city[0]).attr('style', 'color: red; font-size:12px')
+
+                                }
+
+                                if (site_following_him != null){
+                                    $('.error_9').text(errors.site_following_him[0]).attr('style', 'color: red; font-size:12px')
+
+                                }
+
+                            }else {
+
+
+                                alert(" Dépistage Bien enregistré!!")
+
+                                $(".input_save_screening").each(function(el){
+                                    $(this).val(" ")
+                                })
+
+                               $(".error_s_p ").each(function(el){
+                                    $(this).text(" ")
+                                })
+
+                    }
+
+                }
+            })
+
+    })
+
+       })
+
+    </script>
 {% endblock %}
 
